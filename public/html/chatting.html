@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CHATTING ROOM</title>
+    <link rel="stylesheet" href="../css/reset.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <header id="header">
+      <h1 id="logo">TIS6 TALK</h1>
+    </header>
+    <div class="contents">
+      <div class="user">
+        <label>
+          <span class="nick">대화명</span>
+          <input type="text" placeholder="대화명을 입력하세요." id="nickname" />
+        </label>
+      </div>
+      <div class="chatBox">
+        <ul class="list">
+          <!-- <li class="other">
+            <div class="profil">
+              <img src="../images/man.png" alt="" />
+            </div>
+            <div class="msgBox">
+              <span class="name">other</span>
+              <div class="inner">
+              <div class="msg">안녕하세요. 만나서 반갑습니다.</div>
+              <div class="time">오후 06:30</div>
+              </div>
+            </div>
+          </li>
+          <li class="me">
+            <div class="profile">
+              <img src="../images/woman.png" alt="" />
+            </div>
+            <div class="msgBox">
+              <span class="name">Rachael_S</span>
+              <div class="inner">
+              <div class="msg">안녕하세요. 만나서 반갑습니다.</div>
+              <div class="time">오후 06:30</div>
+              </div>
+            </div>
+          </li> -->
+        </ul>
+      </div>
+      <div class="sendBox">
+        <label>
+          <textarea name="" id="msg" cols="30" rows="10"></textarea>
+        </label>
+        <button class="btnSend">전송</button>
+      </div>
+    </div>
+  </body>
+  <script>
+    // client socket
+    const socket = io();
+    // 서버에서 넘어오는 이벤트 받는 곳
+    // socket.on("chatting", (data) => {});
+    // socket.on("serverYaho", (data) => {
+    //   console.log(data);
+    // });
+    // 클라이언트에서 이벤트 보내는 곳
+    // socket.emit("yaho", "나는 yaho로 이벤트를 날리고 있습니다.");
+    // socket.emit("chatting", "나는 chatting으로 이벤트를 날리고 있습니다.");
+
+    $(".contents .sendBox .btnSend").on("click", function () {
+      const chatItem = {
+        nickname: $("#nickname").val(),
+        msg: $(".sendBox #msg").val(),
+      };
+      socket.emit("chatting", chatItem);
+    });
+
+    // msg가 공백일 시 msg가 화면에 아예 나타나지 않도록 처리
+    $(".contents .sendBox #msg").on("keydown", function (e) {
+      if (e.keyCode === 13) {
+        if ($("#msg").val().trim() === "") {
+          $("#msg").val("");
+          return;
+        }
+      }
+    });
+
+    $(".contents .sendBox #msg").on("keyup", function (e) {
+      // console.log(e);
+      if (e.keyCode === 13) {
+        if ($("#msg").val().trim() === "") {
+          e.preventDefault();
+          $("#msg").val("");
+          // * return은 동작하고 멈추게 하는 것
+          return;
+        }
+        const chatItem = {
+          nickname: $("#nickname").val(),
+          msg: $(".sendBox #msg").val(),
+        };
+        // 비우기, 노란색 불들어오게 하기 ---------------------------
+        socket.emit("chatting", chatItem);
+        $("#msg").val("");
+        $(".btnSend").removeClass("on");
+      }
+      if ($("#msg").val().trim() !== "") {
+        $(".btnSend").addClass("on");
+      } else {
+        $(".btnSend").removeClass("on");
+      }
+      // -----------------------------------------------------------
+      if (e.keyCode === 27) {
+        e.preventDefault();
+        $("#msg").val("");
+        $(".btnSend").removeClass("on");
+        return;
+      }
+    });
+    socket.on("chatting", (data) => {
+      // console.log(data);
+      const meOrOther = data.nickname === $("#nickname").val() ? "me" : "other";
+      const manOrWoman = data.nickname === $("#nickname").val() ? "woman" : "man";
+      $(".chatBox .list").append(`<li class="${meOrOther}">
+            <div class="profile">
+              <img src="../images/${manOrWoman}.png" alt="" />
+              </div>
+              <div class="msgBox">
+                <span class="name">${data.nickname}</span>
+                <div class="inner">
+              <div class="msg">${data.msg}</div>
+              <div class="time">${data.time}</div>
+              </div>
+            </div>
+          </li>`);
+      // 내용추가
+      // 추가된 내용이 화면상에 보이게(지난 대화는 스크롤로 올라가 안보이고, 가장 최근의 msg가 계속 아래에 뜨면서 스크롤이 올라가게끔)
+      $(".chatBox").scrollTop($(".chatBox .list").height());
+    });
+
+    /*
+     * textarea >> data 유지하고 줄바꿈(shift+enter) 기능 구현
+     *          >> data가 창 영역을 벗어나지 않도록 (y) css
+     * msg 자동 줄바꿈 (y) css
+     * profile img me/other 다르게 적용 (y)
+     * esc 누르면 #msg 내용 비우기 + 버튼 .on css 지우기 (y)
+     */
+  </script>
+</html>
