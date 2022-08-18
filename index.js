@@ -40,14 +40,19 @@ app.set("port", process.env.PORT || 8099);
  */
 
 const PORT = app.get("port");
-app.get("/", (req, res) => {
-  res.send("hello node");
-});
 
-app.get("/chatting", (req, res) => {
-  // res.send("CHATTING ROOM");
+app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "/public/html/chatting.html"));
 });
+
+// app.get("/", (req, res) => {
+//   res.send("hello node");
+// });
+
+// app.get("/chatting", (req, res) => {
+//   // res.send("CHATTING ROOM");
+//   res.sendFile(path.join(__dirname, "/public/html/chatting.html"));
+// });
 
 server.listen(PORT, () => {
   console.log(`${PORT}에서 서버 대기중`);
