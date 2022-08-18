@@ -95,6 +95,12 @@ a {
             padding: 10px;
             margin-right: 10px;
             word-break: break-all;
+            /* 
+             * white-space: pre;
+             * css로 처리, 눈에 보이는 서식으로 채팅창에 입력, 있는 그대로 보여짐
+             * 줄바꿈 뿐만 아니라 2칸 이상의 공백 또한 필요할 때는 이렇게 처리하는 것이 좋다!
+            */
+            // white-space: pre;
           }
           .time {
             font-size: 12px;

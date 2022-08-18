@@ -92,7 +92,7 @@
     });
 
     $(".contents .sendBox #msg").on("keyup", function (e) {
-      // console.log(e);
+      console.log(e);
       if (e.keyCode === 13) {
         if ($("#msg").val().trim() === "") {
           e.preventDefault();
@@ -100,14 +100,19 @@
           // * return은 동작하고 멈추게 하는 것
           return;
         }
-        const chatItem = {
-          nickname: $("#nickname").val(),
-          msg: $(".sendBox #msg").val(),
-        };
-        // 비우기, 노란색 불들어오게 하기 ---------------------------
-        socket.emit("chatting", chatItem);
-        $("#msg").val("");
-        $(".btnSend").removeClass("on");
+        // shift+enter >> 줄바꿈 / enter >> msg입력
+        if (!e.shiftKey) {
+          const chatItem = {
+            nickname: $("#nickname").val(),
+            msg: $(".sendBox #msg").val().replaceAll("\n", "<br>"),
+            // msg: $(".sendBox #msg").val(),
+          };
+          // 비우기, 노란색 불들어오게 하기 ---------------------------
+          socket.emit("chatting", chatItem);
+          $("#msg").val("");
+          $(".btnSend").removeClass("on");
+          // console.log($(".sendBox #msg").val());
+        }
       }
       if ($("#msg").val().trim() !== "") {
         $(".btnSend").addClass("on");
